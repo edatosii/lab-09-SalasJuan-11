@@ -104,38 +104,85 @@ public List<Estudiante> listar() {
 
     return estudiantes;
 }
-    // =====================================================================
-    // ETAPA 3. Buscar por id (SELECT ... WHERE)
-    // =====================================================================
+// =====================================================================
+// ETAPA 3. Buscar por id (SELECT ... WHERE)
+// =====================================================================
 
-    /** @return el estudiante con ese id, o null si no existe (o si hay un error) */
-    public Estudiante buscarPorId(int id) {
-        // TODO Etapa 3: SELECT id, nombre, correo, semestre FROM estudiantes WHERE id = ?
-        throw new UnsupportedOperationException("TODO: buscarPorId");
+/** @return el estudiante con ese id, o null si no existe (o si hay un error) */
+public Estudiante buscarPorId(int id) {
+    String sql = "SELECT id, nombre, correo, semestre FROM estudiantes WHERE id = ?";
+
+    try (
+        Connection conn = ConexionBD.conectar();
+        PreparedStatement ps = conn.prepareStatement(sql)
+    ) {
+        ps.setInt(1, id);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return new Estudiante(
+                    rs.getInt("id"),
+                    rs.getString("nombre"),
+                    rs.getString("correo"),
+                    rs.getInt("semestre")
+                );
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
 
-    // =====================================================================
-    // ETAPA 4. Actualizar (UPDATE)
-    // =====================================================================
+    return null;
+}
 
-    /**
-     * Cambia nombre, correo y semestre del estudiante cuyo id es estudiante.getId().
-     *
-     * @return true si se actualizó; false si no existe ese id o si hubo un error
-     *         (por ejemplo, correo ya usado por OTRO estudiante)
-     */
-    public boolean actualizar(Estudiante estudiante) {
-        // TODO Etapa 4: UPDATE estudiantes SET nombre = ?, correo = ?, semestre = ? WHERE id = ?
-        throw new UnsupportedOperationException("TODO: actualizar");
+// =====================================================================
+// ETAPA 4. Actualizar (UPDATE)
+// =====================================================================
+
+/**
+ * Cambia nombre, correo y semestre del estudiante cuyo id es estudiante.getId().
+ *
+ * @return true si se actualizó; false si no existe ese id o si hubo un error
+ */
+public boolean actualizar(Estudiante estudiante) {
+    String sql = "UPDATE estudiantes SET nombre = ?, correo = ?, semestre = ? WHERE id = ?";
+
+    try (
+        Connection conn = ConexionBD.conectar();
+        PreparedStatement ps = conn.prepareStatement(sql)
+    ) {
+        ps.setString(1, estudiante.getNombre());
+        ps.setString(2, estudiante.getCorreo());
+        ps.setInt(3, estudiante.getSemestre());
+        ps.setInt(4, estudiante.getId());
+
+        return ps.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
     }
+}
 
-    // =====================================================================
-    // ETAPA 5. Eliminar (DELETE)
-    // =====================================================================
+// =====================================================================
+// ETAPA 5. Eliminar (DELETE)
+// =====================================================================
 
-    /** @return true si se eliminó; false si no existía ese id o si hubo un error */
-    public boolean eliminar(int id) {
-        // TODO Etapa 5: DELETE FROM estudiantes WHERE id = ?
-        throw new UnsupportedOperationException("TODO: eliminar");
+/** @return true si se eliminó; false si no existía ese id o si hubo un error */
+public boolean eliminar(int id) {
+    String sql = "DELETE FROM estudiantes WHERE id = ?";
+
+    try (
+        Connection conn = ConexionBD.conectar();
+        PreparedStatement ps = conn.prepareStatement(sql)
+    ) {
+        ps.setInt(1, id);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
     }
+}
 }
